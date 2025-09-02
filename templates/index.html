@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Advanced NLP Sentiment Analysis Web Application">
+    <meta name="keywords" content="sentiment analysis, NLP, AI, machine learning, Flask app, emotion analysis, pretrained models, transformer models, DistilBERT, RoBERTa, GoEmotions, Hugging Face, Transformers, text classification, polarity detection, confidence scores, visualization, word cloud, tokenization, lemmatization, stemming, normalization, NER, named entity recognition, POS tagging, part-of-speech, spaCy, NLTK, CPU PyTorch, web app, Aradhya Pavan H S, AIML Engineer, aradhya pavan, AradhyaPavan, https://github.com/aradhyapavan, https://www.linkedin.com/in/aradhya-pavan/">
+    <meta name="author" content="Aradhya Pavan H S, AIML Engineer, aradhya pavan, AradhyaPavan, https://github.com/aradhyapavan, https://www.linkedin.com/in/aradhya-pavan/">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#0ea5e9">
+    <meta name="application-name" content="NLP Sentiment Analysis">
+    <meta name="generator" content="Flask">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NLP Sentiment Analysis">
+    <meta property="og:title" content="NLP Sentiment Analysis - Advanced AI Text Analysis">
+    <meta property="og:description" content="Advanced NLP Sentiment Analysis Web Application">
+    <meta property="og:url" content="{{ request.url_root }}">
+    <meta property="og:image" content="{{ request.url_root }}static/nlpa.png">
+    <meta property="og:see_also" content="https://www.linkedin.com/in/aradhya-pavan/">
+    <link rel="me" href="https://www.linkedin.com/in/aradhya-pavan/">
+
+ 
+
+    <link rel="canonical" href="{{ request.url_root }}">
+
+    <title>NLP Sentiment Analysis - Advanced AI Text Analysis</title>
+    <link rel="icon" href="favicon_io/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon_io/favicon-16x16.png">
+<link rel="manifest" href="/static/favicon_io/site.webmanifest">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    
+ 
+</head>
+<body>
+<div class="docs-fab">
+    <button type="button" class="btn btn-docs" data-bs-toggle="modal" data-bs-target="#docsModal">
+        <i class="fas fa-book"></i> Documentation
+    </button>
+</div>
+<div class="container">
+        <!-- Header Section -->
+        <div class="header-section fade-in-up mt-5">
+            <div class="logo-container">
+                <img src="/static/nlpa.png" alt="NLP Sentiment Analysis" class="logo-img">
+    </div>
+            <h1 class="main-title">NLP <span class="highlight">Sentiment Analysis</span></h1>
+            <p class="subtitle">Sentiment analysis using pretrained models</p>
+        </div>
+
+        <!-- Main Application Card -->
+        <div class="app-card fade-in-up">
+            <div class="card-header">
+                <h2 class="card-title">Sentiment Analysis Application</h2>
+                <p class="card-subtitle">Analyze text sentiment using pretrained models</p>
+            </div>
+
+            <form id="sentimentForm" action="/analyze" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="inputText" class="form-label">
+                        <i class="fas fa-edit me-2"></i>Enter Text (max 300 words)
+                    </label>
+                    <textarea 
+                        class="form-control" 
+                        id="inputText" 
+                        name="text" 
+                        rows="6" 
+                        placeholder="Enter your text here for sentiment analysis..."
+                        required
+                    >{{ text or '' }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <div id="file-upload-section" class="file-upload-section">
+                        <label for="file" class="form-label">
+                            <i class="fas fa-cloud-upload-alt me-2"></i>Or Upload File (.txt or .csv)
+                        </label>
+                        <input class="form-control" type="file" name="file" id="file" accept=".txt,.csv">
+                        <button type="button" class="btn remove-file-btn" id="removeFileBtn">
+                            <i class="fas fa-times me-2"></i>Remove File
+                        </button>
+                    {% if file_uploaded %}
+                            <div class="alert alert-success mt-2">
+                                <i class="fas fa-check-circle me-2"></i>File uploaded successfully!
+                            </div>
+                    {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="model-selection">
+                        <label for="model_type" class="form-label">
+                            <i class="fas fa-brain me-2"></i>Choose AI Model
+                        </label>
+                    <select class="form-select" name="model_type" id="model_type">
+                            <option value="default" {% if model_type == 'default' %}selected{% endif %}>
+                                🚀 DistilBERT - High Performance Sentiment Analysis
+                            </option>
+                            <option value="roberta" {% if model_type == 'roberta' %}selected{% endif %}>
+                                🎯 RoBERTa - Social Media & Twitter Optimized
+                            </option>
+                            <option value="emotion" {% if model_type == 'emotion' %}selected{% endif %}>
+                                🎭 Emotion - Advanced Multi-Emotion Recognition
+                            </option>
+                    </select>
+                </div>
+                </div>
+
+                <div class="form-group">
+                    <div id="word-count" class="word-count" style="display: none;">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="word-count-text"></span>
+                    </div>
+                </div>
+       
+                <button type="submit" class="btn btn-analyze" id="analyze-btn" disabled>
+                    <i class="fas fa-magic me-2"></i>Analyze Sentiment
+                </button>
+            </form>
+
+            <!-- Error Display -->
+            {% if error %}
+            <div class="alert alert-danger mt-4" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Error:</strong> {{ error }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Note Section (moved above results) -->
+    <div class="note-section note-narrow">
+        <p class="note-text">
+            <span class="me-2">💡</span>
+            <strong>Pro Tip:</strong> Use our sample text for testing or download it for offline analysis. 
+            The AI models provide detailed sentiment analysis with confidence scores.
+        </p>
+        
+        <div class="action-buttons">
+            <button type="button" class="btn btn-action btn-view" data-bs-toggle="modal" data-bs-target="#exampleTextModal">
+                <i class="fas fa-eye"></i>View Example Text
+</button>
+            
+            <a href="/static/text/sample.txt" class="btn btn-action btn-download" download>
+                <i class="fas fa-download"></i>Download Sample TXT
+            </a>
+        </div>
+    </div>
+
+    <!-- Results Display -->
+    {% if sentiment %}
+            <!-- Results Header -->
+            <div class="results-header mt-4">
+                <h2 class="results-title">
+                    <i class="fas fa-chart-line"></i>Analysis Results
+                </h2>
+                <div class="results-summary">
+                    <span class="summary-item">
+                        <i class="fas fa-clock"></i>Analysis completed
+                    </span>
+                    <span class="summary-item">
+                        <i class="fas fa-words"></i>{{ total_words }} words processed
+                    </span>
+        </div>
+    </div>
+
+            <!-- Main Sentiment Result -->
+            <div class="main-sentiment-card">
+                <div class="sentiment-hero">
+                    <div class="sentiment-icon">
+                        {% if sentiment.lower() == 'positive' %}
+                            <i class="fas fa-smile-beam"></i>
+                        {% elif sentiment.lower() == 'negative' %}
+                            <i class="fas fa-frown"></i>
+                        {% else %}
+                            <i class="fas fa-meh"></i>
+                        {% endif %}
+                    </div>
+                    <div class="sentiment-content">
+                        <h3 class="sentiment-label {{ sentiment.lower() }}">{{ sentiment }}</h3>
+                        {% if probabilities %}
+                            <div class="confidence-meter">
+                                <div class="confidence-bar">
+                                    {% if probabilities is mapping %}
+                                        {% set max_prob = probabilities[sentiment] | max %}
+                                        <div class="confidence-fill" style="width: {{ "%.1f"|format(max_prob * 100) }}%"></div>
+                                    {% else %}
+                                        {% set max_prob = probabilities | max %}
+                                        <div class="confidence-fill" style="width: {{ "%.1f"|format(max_prob * 100) }}%"></div>
+                                    {% endif %}
+        </div>
+                                {% if probabilities is mapping %}
+                                    {% set max_prob = probabilities[sentiment] | max %}
+                                    <span class="confidence-text">Confidence: {{ "%.1f"|format(max_prob * 100) }}%</span>
+                                {% else %}
+                                    {% set max_prob = probabilities | max %}
+                                    <span class="confidence-text">Confidence: {{ "%.1f"|format(max_prob * 100) }}%</span>
+                                {% endif %}
+    </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text Cleaning Card -->
+            <div class="text-cleaning-card">
+                <div class="step-header">
+                    <div class="step-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div class="step-title-section">
+                        <h4 class="step-title">Text Cleaning</h4>
+                        <p class="step-description">Removes special characters, extra spaces, and unwanted elements to prepare clean text for analysis</p>
+                    </div>
+                    <div class="card-toolbar">
+                        <button class="toolbar-btn" onclick="copySectionText('cleaned-text')" title="Copy"><i class="fas fa-copy"></i></button>
+                        <button class="toolbar-btn" onclick="downloadSection('cleaned-text','cleaned_text.txt')" title="Download"><i class="fas fa-download"></i></button>
+                        <button class="toolbar-btn" onclick="toggleExpand(this)" title="Expand/Collapse"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="step-content" id="cleaned-text">
+                    <div class="text-box">
+                        <h5>Cleaned Text:</h5>
+                        <p class="processed-text">{{ cleaned_text }}</p>
+            </div>
+                    {% if removed_text %}
+                    <div class="meta-box">
+                        <h5>Removed Elements:</h5>
+                        <p class="meta-text">{{ removed_text }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Normalization Card -->
+            <div class="normalization-card">
+                <div class="step-header">
+                    <div class="step-icon">
+                        <i class="fas fa-language"></i>
+                                    </div>
+                    <div class="step-title-section">
+                        <h4 class="step-title">Normalization</h4>
+                        <p class="step-description">Converts text to lowercase and standardizes formatting for consistent analysis</p>
+                                </div>
+                    <div class="card-toolbar">
+                        <button class="toolbar-btn" onclick="copySectionText('normalized-text')" title="Copy"><i class="fas fa-copy"></i></button>
+                        <button class="toolbar-btn" onclick="downloadSection('normalized-text','normalized_text.txt')" title="Download"><i class="fas fa-download"></i></button>
+                        <button class="toolbar-btn" onclick="toggleExpand(this)" title="Expand/Collapse"><i class="fas fa-expand"></i></button>
+                                    </div>
+                                </div>
+                <div class="step-content" id="normalized-text">
+                    <div class="text-box">
+                        <h5>Normalized Text:</h5>
+                        <p class="processed-text">{{ normalized_text }}</p>
+                            </div>
+                    <div class="meta-box">
+                        <h5>Process Applied:</h5>
+                        <p class="meta-text">Converted to lowercase, standardized spacing and punctuation</p>
+                                    </div>
+                                </div>
+                            </div>
+
+            <!-- Tokenization Card -->
+            <div class="tokenization-card">
+                <div class="step-header">
+                    <div class="step-icon">
+                        <i class="fas fa-tags"></i>
+                                    </div>
+                    <div class="step-title-section">
+                        <h4 class="step-title">Tokenization</h4>
+                        <p class="step-description">Breaks text into individual words (tokens) for word-by-word analysis</p>
+                                </div>
+                    <div class="card-toolbar">
+                        <span class="badge"><i class="fas fa-hashtag me-1"></i>{{ tokenized_text|length }} tokens</span>
+                        <button class="toolbar-btn" onclick="downloadSection('tokenized-text','tokens.txt')" title="Download"><i class="fas fa-download"></i></button>
+                        <button class="toolbar-btn" onclick="toggleExpand(this)" title="Expand/Collapse"><i class="fas fa-expand"></i></button>
+                                    </div>
+                                </div>
+                <div class="step-content" id="tokenized-text">
+                    <div class="text-box">
+                        <h5>Individual Tokens:</h5>
+                        <div class="token-display">
+                            {% for token in tokenized_text %}
+                            <span class="token-item">{{ token }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stemming & Lemmatization Card -->
+            <div class="stemming-lemmatization-card">
+                <div class="step-header">
+                    <div class="step-icon">
+                        <i class="fas fa-cut"></i>
+                    </div>
+                    <div class="step-title-section">
+                        <h4 class="step-title">Stemming & Lemmatization</h4>
+                        <p class="step-description">Reduces words to their root forms to group similar meanings together</p>
+                </div>
+                    <div class="card-toolbar">
+                        <button class="toolbar-btn" onclick="copySectionText('stem-lemma')" title="Copy"><i class="fas fa-copy"></i></button>
+                        <button class="toolbar-btn" onclick="downloadSection('stem-lemma','stemming_lemmatization.txt')" title="Download"><i class="fas fa-download"></i></button>
+                        <button class="toolbar-btn" onclick="toggleExpand(this)" title="Expand/Collapse"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="step-content" id="stem-lemma">
+                    <div class="text-box">
+                        <h5>Stemmed Text:</h5>
+                        <div class="token-display">
+                            {% set stems = stemmed_text.split() if stemmed_text is string else (stemmed_text or []) %}
+                            {% for stem in stems %}
+                            <span class="token-item">{{ stem }}</span>
+                            {% endfor %}
+                        </div>
+                        <small class="process-note">Stemming removes word endings to find the root (e.g., "running" → "run")</small>
+                    </div>
+                    <div class="text-box">
+                        <h5>Lemmatized Text:</h5>
+                        <div class="token-display">
+                            {% set lemmas = lemmatized_text.split() if lemmatized_text is string else (lemmatized_text or []) %}
+                            {% for lemma in lemmas %}
+                            <span class="token-item">{{ lemma }}</span>
+                            {% endfor %}
+            </div>
+                        <small class="process-note">Lemmatization finds the dictionary form (e.g., "better" → "good")</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Word Cloud Visualization -->
+            <div class="wordcloud-section">
+                <div class="step-header">
+                    <div class="step-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h4 class="step-title">Word Cloud Visualization</h4>
+                    <div class="card-toolbar">
+                        <button type="button" class="toolbar-btn" onclick="copySectionText('wordcloud-content')" title="Copy"><i class="fas fa-copy"></i></button>
+                        <button type="button" class="toolbar-btn" onclick="downloadSection('wordcloud-content','wordcloud.txt')" title="Download"><i class="fas fa-download"></i></button>
+                        <button type="button" class="toolbar-btn" onclick="toggleFullscreen(this)" title="Fullscreen"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="wordcloud-container" id="wordcloud-content">
+                    <img src="{{ wordcloud_url }}" alt="Word Cloud" class="wordcloud-image">
+                    <div class="wordcloud-info">
+                        <p><i class="fas fa-info-circle me-2"></i>Word cloud generated from processed text</p>
+                        <p><i class="fas fa-chart-bar me-2"></i>Size indicates word frequency</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Named Entities (NER) Card -->
+            <div class="ner-analysis-card">
+                <div class="step-header">
+                    <div class="step-icon">
+                        <i class="fas fa-user-tag"></i>
+                    </div>
+                    <h4 class="step-title">Named Entities (NER)</h4>
+                    <div class="card-toolbar">
+                        <button type="button" class="toolbar-btn" onclick="copySectionText('ner-content')" title="Copy"><i class="fas fa-copy"></i></button>
+                        <button type="button" class="toolbar-btn" onclick="downloadSection('ner-content','ner.txt')" title="Download"><i class="fas fa-download"></i></button>
+                        <button type="button" class="toolbar-btn" onclick="toggleFullscreen(this)" title="Fullscreen"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="step-content" id="ner-content">
+                    {% if ner %}
+                        {% for entity, label in ner %}
+                        <span class="entity-tag {{ label.lower() }}">
+                            {{ entity }} <small>({{ label }})</small>
+                        </span>
+                        {% endfor %}
+                    {% else %}
+                        <p class="no-data">No named entities detected</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Part of Speech (POS) Card -->
+            <div class="pos-analysis-card">
+                <div class="step-header">
+                    <div class="step-icon">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <div class="step-title-section">
+                        <h4 class="step-title">Part of Speech (POS)</h4>
+                        <p class="step-description">Labels each word with its grammatical role to explain sentence structure. Format: <strong>word (TAG)</strong>, e.g., <em>run (VERB)</em>, <em>happy (ADJ)</em>, <em>book (NOUN)</em>.</p>
+                </div>
+                    <div class="card-toolbar">
+                        <button type="button" class="toolbar-btn" onclick="copySectionText('pos-content')" title="Copy"><i class="fas fa-copy"></i></button>
+                        <button type="button" class="toolbar-btn" onclick="downloadSection('pos-content','pos.txt')" title="Download"><i class="fas fa-download"></i></button>
+                        <button type="button" class="toolbar-btn" onclick="toggleFullscreen(this)" title="Fullscreen"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="step-content" id="pos-content">
+                    {% if pos %}
+                        <div class="pos-tags">
+                            {% for word, tag in pos %}
+                            <span class="word-tag">
+                                {{ word }} <small>({{ tag }})</small>
+                            </span>
+                            {% endfor %}
+                        </div>
+                        <small class="process-note">Common tags: NOUN (names/things), VERB (actions), ADJ (describing words), ADV (how/when), PRON (pronouns), ADP (prepositions), CONJ (conjunctions), DET (determiners), INTJ (interjections).</small>
+                    {% else %}
+                        <p class="no-data">No POS data available</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Word-Level Sentiment Analysis (hide for emotion model) -->
+            {% if word_sentiment_distribution and model_type != 'emotion' %}
+            <div class="word-sentiment-analysis">
+                <div class="step-header">
+                    <div class="step-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h4 class="step-title">Word-Level Sentiment Analysis</h4>
+                    <div class="card-toolbar">
+                        <button type="button" class="toolbar-btn" onclick="copySectionText('sentiment-content-full')" title="Copy"><i class="fas fa-copy"></i></button>
+                        <button type="button" class="toolbar-btn" onclick="downloadSection('sentiment-content-full','word_sentiment.txt')" title="Download"><i class="fas fa-download"></i></button>
+                        <button type="button" class="toolbar-btn" onclick="toggleFullscreen(this)" title="Fullscreen"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="step-content" id="sentiment-content-full">
+                    <!-- Sentiment Distribution Chart -->
+                    <div class="chart-container" style="height: 320px;">
+                        <canvas id="sentimentChart"></canvas>
+            </div>
+                    <!-- Embedded data for Sentiment chart to avoid Jinja inside JS -->
+                    <script type="application/json" id="sentiment-data">{{ ((word_sentiment_distribution and {
+                        'labels': ['Positive','Neutral','Negative'],
+                        'counts': [
+                            word_sentiment_distribution.positive,
+                            word_sentiment_distribution.neutral,
+                            word_sentiment_distribution.negative
+                        ]
+                    }) or {}) | tojson }}</script>
+                    <script type="application/json" id="sentiment-dist">{{ (word_sentiment_distribution or {}) | tojson }}</script>
+
+                    <div class="sentiment-overview">
+                        <div class="overview-card positive">
+                            <div class="overview-icon">
+                                <i class="fas fa-thumbs-up"></i>
+                    </div>
+                            <div class="overview-content">
+                                <span class="overview-number">{{ word_sentiment_distribution.positive }}</span>
+                                <span class="overview-label">Positive Words</span>
+                </div>
+            </div>
+
+                        <div class="overview-card neutral">
+                            <div class="overview-icon">
+                                <i class="fas fa-minus"></i>
+                            </div>
+                            <div class="overview-content">
+                                <span class="overview-number">{{ word_sentiment_distribution.neutral }}</span>
+                                <span class="overview-label">Neutral Words</span>
+                            </div>
+            </div>
+
+                        <div class="overview-card negative">
+                            <div class="overview-icon">
+                                <i class="fas fa-thumbs-down"></i>
+                            </div>
+                            <div class="overview-content">
+                                <span class="overview-number">{{ word_sentiment_distribution.negative }}</span>
+                                <span class="overview-label">Negative Words</span>
+                    </div>
+                </div>
+            </div>
+
+                    <div class="word-details">
+                        {% if positive_words %}
+                        <div class="word-group positive">
+                            <h5><i class="fas fa-plus-circle me-2"></i>Positive Words</h5>
+                            <div class="word-cloud">
+                                {% for word in positive_words %}
+                                <span class="word-tag positive">{{ word }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if negative_words %}
+                        <div class="word-group negative">
+                            <h5><i class="fas fa-minus-circle me-2"></i>Negative Words</h5>
+                            <div class="word-cloud">
+                                {% for word in negative_words %}
+                                <span class="word-tag negative">{{ word }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if neutral_words %}
+                        <div class="word-group neutral">
+                            <h5><i class="fas fa-circle me-2"></i>Neutral Words</h5>
+                            <div class="word-cloud">
+                                {% for word in neutral_words %}
+                                <span class="word-tag neutral">{{ word }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Emotion Analysis (show only for emotion model) -->
+            {% if emotion_words is defined and emotion_words and model_type == 'emotion' %}
+            <div class="emotion-analysis">
+                <div class="step-header">
+                    <div class="step-icon">
+                        <i class="fas fa-smile-beam"></i>
+                    </div>
+                    <h4 class="step-title">Emotion Analysis</h4>
+                    <div class="card-toolbar">
+                        <button type="button" class="toolbar-btn" onclick="copySectionText('emotion-content')" title="Copy"><i class="fas fa-copy"></i></button>
+                        <button type="button" class="toolbar-btn" onclick="downloadSection('emotion-content','emotions.txt')" title="Download"><i class="fas fa-download"></i></button>
+                        <button type="button" class="toolbar-btn" onclick="toggleFullscreen(this)" title="Fullscreen"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="step-content" id="emotion-content">
+                    <div class="emotion-chart">
+                        {% for emotion, words in emotion_words.items() %}
+                        <div class="emotion-bar">
+                            <div class="emotion-label">{{ emotion.title() }}</div>
+                            <div class="emotion-bar-container">
+                                <div class="emotion-bar-fill" style="width: {{ (words|length / (emotion_words.values()|map('length')|sum)) * 100 }}%">
+                                    <span class="emotion-count">{{ words|length }}</span>
+                                </div>
+                            </div>
+                            <div class="emotion-words">
+                                {% for word in words %}
+                                <span class="emotion-word">{{ word }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+            </div>
+
+                    <!-- Embedded data for Emotion chart to avoid Jinja inside JS -->
+                    <script type="application/json" id="emotion-data">{{ {
+                        'labels': emotion_words.keys()|list,
+                        'counts': emotion_words.values()|map('length')|list
+                    } | tojson }}</script>
+
+                    <!-- Per-emotion cards showing all words -->
+                    <div class="emotion-cards">
+                        {% for emotion, words in emotion_words.items() %}
+                        <div class="emotion-card">
+                            <div class="emotion-card-header">
+                                <h5>{{ emotion.title() }}</h5>
+                                <span class="badge-count">{{ words|length }}</span>
+                            </div>
+                            <div class="emotion-card-body">
+                                {% for word in words %}
+                                <span class="emotion-word">{{ word }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+                <!-- Action Buttons -->
+                <div class="results-actions">
+                    <a href="/download" class="btn btn-primary btn-lg">
+                        <i class="fas fa-download me-2"></i>Download Full Report
+                    </a>
+                    <button class="btn btn-outline-secondary btn-lg" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print Results
+                    </button>
+            </div>
+            {% endif %}
+
+    <!-- Footer -->
+    <div class="footer fade-in-up">
+        <div class="footer-text">
+            <i class="fas fa-code me-2"></i>
+            Designed and Developed by Aradhya Pavan H S
+        </div>
+                    </div>
+
+    <!-- Example Text Modal -->
+    <div class="modal fade" id="exampleTextModal" tabindex="-1" aria-labelledby="exampleTextModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleTextModalLabel">
+                        <i class="fas fa-file-text me-2"></i>Sample Text for Testing
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="sample-text-content">
+                        <div style="background: var(--surface-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-primary); font-family: 'Inter', sans-serif; line-height: 1.6; margin-bottom: 1rem; max-height: 300px; overflow-y: auto;">
+                            <p>I woke up today feeling pretty optimistic. The sun was shining, and I thought, "This is going to be a good day" (positive). However, as soon as I checked my phone, I saw a message from my boss about a mistake in yesterday's report. I felt an immediate rush of anxiety and disappointment (negative). I quickly logged in and fixed the issue, but the weight of that mistake stuck with me throughout the morning.</p>
+                            
+                            <p>Later, I went for a walk to clear my mind. The park was calm, and the fresh air helped me relax a bit (neutral). But while I was out, I ran into an old friend from school. We hadn't seen each other in years! Catching up with her brought back so many happy memories, and we laughed about the good times we shared (positive).</p>
+                            
+                            <p>As the day went on, I couldn't help but feel a bit lonely after saying goodbye to her (sad). Even though our conversation was nice, it reminded me how much things have changed and how distant I feel from people lately (negative).</p>
+                            
+                            <p>By the evening, I decided to focus on myself and enjoy a quiet dinner at home. While the day had its ups and downs, I realized that it's just part of life. Some moments are tough, but others bring joy and comfort. Overall, I'm learning to accept both (reflective).</p>
+    </div>
+
+
+                        <p><i class="fas fa-info-circle me-2 text-primary"></i><strong>This sample text demonstrates:</strong> Various sentiment patterns including positive, negative, neutral, sad, and reflective emotions to showcase the AI model's comprehensive analysis capabilities.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="copySampleText()">
+                        <i class="fas fa-copy me-2"></i>Copy Text
+                    </button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js for beautiful charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Documentation Modal (moved after sample modal to avoid backdrop conflicts) -->
+    <div class="modal fade" id="docsModal" tabindex="-1" aria-labelledby="docsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="docsModalLabel"><i class="fas fa-book me-2"></i>Application Documentation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="mb-3"><i class="fas fa-circle-info me-2 text-primary"></i>About</h6>
+                    <p class="mb-4">This application performs sentiment and emotion analysis on text using state-of-the-art pretrained transformer models with a clean Material design.</p>
+
+                    <h6 class="mb-2"><i class="fas fa-wrench me-2 text-primary"></i>Tech Stack</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table docs-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="width:42px"></th>
+                                    <th>Layer</th>
+                                    <th>Technology</th>
+                                    <th>Purpose</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center"><i class="fab fa-python text-primary"></i></td>
+                                    <td>Backend</td>
+                                    <td>Flask (Python)</td>
+                                    <td>HTTP server, routing, templating</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center"><i class="fas fa-robot text-primary"></i></td>
+                                    <td>NLP Models</td>
+                                    <td>Hugging Face Transformers</td>
+                                    <td>Sentiment & emotion inference</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center"><i class="fas fa-brain text-primary"></i></td>
+                                    <td>Preprocessing</td>
+                                    <td>spaCy, NLTK</td>
+                                    <td>NER, POS, tokenization, lemmatization</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center"><i class="fas fa-chart-line text-primary"></i></td>
+                                    <td>Charts</td>
+                                    <td>Chart.js</td>
+                                    <td>Word distribution visualizations</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center"><i class="fas fa-layer-group text-primary"></i></td>
+                                    <td>UI</td>
+                                    <td>Bootstrap 5 + Custom CSS</td>
+                                    <td>Responsive layout, modern components</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="mb-2"><i class="fas fa-microscope me-2 text-primary"></i>Models</h6>
+                    <div class="list-group mb-4">
+                        <a class="list-group-item list-group-item-action d-flex align-items-center" href="https://huggingface.co/distilbert-base-uncased-finetuned-sst-2-english" target="_blank" rel="noopener">
+                            <i class="fas fa-square-poll-horizontal me-3 text-success"></i>
+                            DistilBERT Sentiment – distilbert-base-uncased-finetuned-sst-2-english
+                        </a>
+                        <a class="list-group-item list-group-item-action d-flex align-items-center" href="https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment" target="_blank" rel="noopener">
+                            <i class="fab fa-twitter me-3 text-info"></i>
+                            RoBERTa (Twitter) – cardiffnlp/twitter-roberta-base-sentiment
+                        </a>
+                        <a class="list-group-item list-group-item-action d-flex align-items-center" href="https://huggingface.co/j-hartmann/emotion-english-distilroberta-base" target="_blank" rel="noopener">
+                            <i class="fas fa-face-smile-beam me-3 text-warning"></i>
+                            Emotion Model – j-hartmann/emotion-english-distilroberta-base
+                        </a>
+                    </div>
+
+                    <h6 class="mb-2"><i class="fas fa-diagram-project me-2 text-primary"></i>How it works</h6>
+                    <ol class="mb-0">
+                        <li>Text is cleaned, normalized, tokenized, stemmed and lemmatized.</li>
+                        <li>Main model predicts overall sentiment/emotions and confidence.</li>
+                        <li>Per-word analysis derives distributions and lists by class.</li>
+                        <li>Results are visualized and can be downloaded as a report.</li>
+                    </ol>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JavaScript -->
+      <script>
+        // Word count functionality
+        const textArea = document.getElementById('inputText');
+        const wordCount = document.getElementById('word-count');
+        const wordCountText = document.getElementById('word-count-text');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const removeFileBtn = document.getElementById('removeFileBtn');
+        const fileInput = document.getElementById('file');
+        const modelSelect = document.getElementById('model_type');
+
+        // Initialize remove button as hidden
+        removeFileBtn.style.display = 'none';
+
+        // Ensure correct state on load (analyze route can render with pre-filled text)
+        function syncInteractionState() {
+          const words = textArea.value.trim().split(/\s+/).filter(w => w.length > 0);
+          if (words.length > 0) {
+            // Text present: disable file upload, enable analyze based on word count
+            fileInput.disabled = true;
+            analyzeBtn.disabled = words.length < 4 || words.length > 300;
+          } else {
+            // No text: allow file upload
+            fileInput.disabled = false;
+          }
+        }
+        document.addEventListener('DOMContentLoaded', syncInteractionState);
+        // Also run immediately for SSR-loaded content
+        syncInteractionState();
+ 
+        textArea.addEventListener('input', function() {
+            const words = this.value.trim().split(/\s+/).filter(word => word.length > 0);
+            const wordCountNum = words.length;
+            
+            console.log('Word count:', wordCountNum); // Debug log
+            
+            if (wordCountNum > 0) {
+                wordCount.style.display = 'block';
+                // Disable file upload when text is entered
+                fileInput.disabled = true;
+                
+                if (wordCountNum < 4) {
+                    wordCountText.textContent = `Text must have at least 4 words. Current: ${wordCountNum}`;
+                    wordCount.style.background = 'var(--gradient-secondary)';
+                    analyzeBtn.disabled = true;
+                } else if (wordCountNum > 300) {
+                    wordCountText.textContent = `Text exceeds 300 word limit. Current: ${wordCountNum}`;
+                    wordCount.style.background = 'var(--gradient-secondary)';
+                    analyzeBtn.disabled = true;
+                } else {
+                    wordCountText.textContent = `Word count: ${wordCountNum}/300`;
+                    wordCount.style.background = 'var(--success-color)';
+                    analyzeBtn.disabled = false;
+                }
+            } else {
+                wordCount.style.display = 'none';
+                analyzeBtn.disabled = true;
+                // Re-enable file upload when no text
+                fileInput.disabled = false;
+            }
+            
+            console.log('Analyze button disabled:', analyzeBtn.disabled); // Debug log
+        });
+
+        // File upload handling
+        removeFileBtn.addEventListener('click', function() {
+            fileInput.value = '';
+            this.style.display = 'none';
+            // Re-enable text input when file is removed
+            textArea.disabled = false;
+            textArea.placeholder = "Enter your text here for sentiment analysis...";
+            fileInput.disabled = false;
+            // Hide word count and disable analyze button
+            wordCount.style.display = 'none';
+            analyzeBtn.disabled = (textArea.value.trim().split(/\s+/).filter(w=>w.length>0).length < 4);
+        });
+
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                removeFileBtn.style.display = 'inline-block';
+                // Disable text input when file is uploaded
+                textArea.disabled = true;
+                textArea.placeholder = "File uploaded - text input disabled";
+                // Enable analyze button when file is uploaded
+                analyzeBtn.disabled = false;
+                wordCount.style.display = 'block';
+                wordCountText.textContent = `File uploaded: ${this.files[0].name}`;
+                wordCount.style.background = 'var(--success-color)';
+            } else {
+                removeFileBtn.style.display = 'none';
+                // Re-enable text input when no file
+                textArea.disabled = false;
+                textArea.placeholder = "Enter your text here for sentiment analysis...";
+                wordCount.style.display = 'none';
+                analyzeBtn.disabled = (textArea.value.trim().split(/\s+/).filter(w=>w.length>0).length < 4);
+            }
+        });
+
+        // Enable analyze when user switches model and valid input exists
+        modelSelect.addEventListener('change', function(){
+            const words = textArea.value.trim().split(/\s+/).filter(w=>w.length>0).length;
+            if (fileInput.files.length > 0 || words >= 4) {
+                analyzeBtn.disabled = false;
+            }
+        });
+
+        // Copy sample text functionality
+        function copySampleText() {
+            const sampleText = `I woke up today feeling pretty optimistic. The sun was shining, and I thought, "This is going to be a good day" (positive). However, as soon as I checked my phone, I saw a message from my boss about a mistake in yesterday's report. I felt an immediate rush of anxiety and disappointment (negative). I quickly logged in and fixed the issue, but the weight of that mistake stuck with me throughout the morning.
+
+Later, I went for a walk to clear my mind. The park was calm, and the fresh air helped me relax a bit (neutral). But while I was out, I ran into an old friend from school. We hadn't seen each other in years! Catching up with her brought back so many happy memories, and we laughed about the good times we shared (positive).
+
+As the day went on, I couldn't help but feel a bit lonely after saying goodbye to her (sad). Even though our conversation was nice, it reminded me how much things have changed and how distant I feel from people lately (negative).
+
+By the evening, I decided to focus on myself and enjoy a quiet dinner at home. While the day had its ups and downs, I realized that it's just part of life. Some moments are tough, but others bring joy and comfort. Overall, I'm learning to accept both (reflective).`;
+            
+            navigator.clipboard.writeText(sampleText).then(function() {
+                // Also paste it into the textarea
+                document.getElementById('inputText').value = sampleText;
+                // Trigger the input event to update word count
+                document.getElementById('inputText').dispatchEvent(new Event('input'));
+                
+                // Show success message
+                const copyBtn = document.querySelector('[onclick="copySampleText()"]');
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check me-2"></i>Copied & Pasted!';
+                copyBtn.classList.add('btn-success');
+                
+                // Close the modal after a short delay
+                setTimeout(() => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('exampleTextModal'));
+                    modal.hide();
+                    
+                    // Reset button after modal closes
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalText;
+                        copyBtn.classList.remove('btn-success');
+                    }, 500);
+                }, 1500);
+            });
+        }
+
+        // Add loading state to form submission
+        document.getElementById('sentimentForm').addEventListener('submit', function(e) {
+            console.log('Form submitted!');
+            const submitBtn = document.getElementById('analyze-btn');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyzing...';
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        });
+
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Accordion functionality
+        function toggleAccordion(section) {
+            const content = document.getElementById(section + '-content');
+            const icon = document.getElementById(section + '-icon');
+            
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+
+        // Initialize charts when results are available
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sentiment Distribution Chart
+            const sentimentCtx = document.getElementById('sentimentChart');
+            const sentimentDataEl = document.getElementById('sentiment-data');
+            const sentimentDistEl = document.getElementById('sentiment-dist');
+            if (sentimentCtx && sentimentDataEl) {
+                const parsed = JSON.parse(sentimentDataEl.textContent || '{}');
+                const dist = sentimentDistEl ? JSON.parse(sentimentDistEl.textContent || '{}') : {};
+                let counts = parsed.counts || [];
+                const labels = parsed.labels || ['Positive','Neutral','Negative'];
+
+                // Fallback: build counts from distribution object if needed
+                if (!Array.isArray(counts) || counts.length !== 3) {
+                    const positive = Number(dist.positive || 0);
+                    const neutral = Number(dist.neutral || 0);
+                    const negative = Number(dist.negative || 0);
+                    counts = [positive, neutral, negative];
+                }
+
+                console.log('[Chart Debug] labels:', labels, 'counts:', counts, 'dist:', dist);
+
+                if (counts.some(c => typeof c === 'number') && counts.reduce((a,b)=>a+b,0) > 0) {
+                    new Chart(sentimentCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: counts,
+                                backgroundColor: [
+                                    '#10b981',
+                                    '#64748b',
+                                    '#ef4444'
+                                ],
+                                borderWidth: 4,
+                                borderColor: '#ffffff',
+                                hoverOffset: 8,
+                                borderJoinStyle: 'round'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            cutout: '55%',
+                            animation: { animateScale: true, duration: 900 },
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 18,
+                                        usePointStyle: true,
+                                        boxWidth: 10
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (ctx) => `${ctx.label}: ${ctx.parsed}`
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    console.warn('[Chart Debug] No data to render chart');
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Emotion Distribution Chart
+            const emotionCtx = document.getElementById('emotionChart');
+            const dataEl = document.getElementById('emotion-data');
+            if (emotionCtx && dataEl) {
+                const parsed = JSON.parse(dataEl.textContent || '{}');
+                const emotions = parsed.labels || [];
+                const counts = parsed.counts || [];
+
+                new Chart(emotionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: emotions,
+                        datasets: [{
+                            label: 'Word Count',
+                            data: counts,
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                            },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+    <script>
+      function copySectionText(sectionId){
+        const el = document.getElementById(sectionId);
+        if(!el) return;
+        const text = el.innerText || el.textContent;
+        navigator.clipboard.writeText(text.trim());
+      }
+      function downloadSection(sectionId, filename){
+        const el = document.getElementById(sectionId);
+        if(!el) return;
+        const text = (el.innerText || el.textContent).trim();
+        const blob = new Blob([text], {type: 'text/plain'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+      function toggleExpand(btn){
+        const card = btn.closest('.step-header').nextElementSibling;
+        if(!card) return;
+        card.classList.toggle('expanded');
+        const icon = btn.querySelector('i');
+        if(icon){ icon.classList.toggle('fa-expand'); icon.classList.toggle('fa-compress'); }
+      }
+
+      function toggleFullscreen(btn){
+        const wrapper = btn.closest('.text-cleaning-card, .normalization-card, .tokenization-card, .stemming-lemmatization-card, .wordcloud-section, .ner-analysis-card, .pos-analysis-card, .word-sentiment-analysis, .emotion-analysis');
+        if(!wrapper) return;
+        wrapper.classList.toggle('fullscreen');
+        const icon = btn.querySelector('i');
+        if(icon){ icon.classList.toggle('fa-expand'); icon.classList.toggle('fa-compress'); }
+      }
+    </script>
+</body>
+</html>

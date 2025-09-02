@@ -1,0 +1,22 @@
+--index-url https://pypi.org/simple
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+setuptools==68.0.0
+wheel==0.41.0
+numpy==1.23.0
+blis==0.7.11
+thinc<8.3.0,>=8.2.2
+transformers==4.44.2
+pydantic==2.9.0
+spacy
+nltk==3.9.1
+wordcloud==1.9.3
+plotly==5.3.1
+gunicorn==20.1.0
+configparser==5.0.2
+tokenizers==0.19.1
+matplotlib==3.8.4
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.1.1+cpu
+spacy
+https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.8.0/en_core_web_md-3.8.0-py3-none-any.whl
